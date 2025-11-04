@@ -1,0 +1,8 @@
+import type React from "react"
+export default function ComplianceLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
+}
