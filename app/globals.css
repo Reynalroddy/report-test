@@ -126,6 +126,71 @@
   }
 }
 
+/* Page break styles for PDF generation */
+.page-break {
+  page-break-after: always;
+  break-after: page;
+}
+
+/* Force hex colors for PDF generation compatibility */
+[data-report-container] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Reset backgrounds to avoid color function issues */
+[data-report-container] [data-slot="badge"] {
+  background-color: transparent;
+  background-image: none;
+}
+
+[data-report-container] .bg-white,
+[data-report-container] [data-page] {
+  background-color: #ffffff !important;
+}
+
+[data-report-container] .bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+[data-report-container] .bg-gray-100,
+[data-report-container] thead tr {
+  background-color: #f3f4f6 !important;
+}
+
+[data-report-container] .text-primary,
+[data-report-container] [data-slot="badge"][class*="default"] {
+  color: #3b82f6 !important;
+  background-color: #dbeafe !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-report-container] .text-green-600 {
+  color: #059669 !important;
+}
+
+[data-report-container] .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+[data-report-container] .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+[data-report-container] .border-gray-300,
+[data-report-container] td,
+[data-report-container] th {
+  border-color: #d1d5db !important;
+}
+
+[data-report-container] [data-slot="badge"] {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border-width: 1px;
+  display: inline-block;
+}
+
 /* Print styles for PDF generation */
 @media print {
   body {
@@ -134,6 +199,11 @@
   }
   .no-print {
     display: none !important;
+  }
+
+  .page-break {
+    page-break-after: always;
+    break-after: page;
   }
 
   /* Ensure compatibility with html2pdf */
@@ -168,5 +238,11 @@
   }
   .text-green-600 {
     color: #059669 !important;
+  }
+  .bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+  .bg-gray-100 {
+    background-color: #f3f4f6 !important;
   }
 }
