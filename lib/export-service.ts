@@ -1,8 +1,18 @@
 "use client"
 
 import JSZip from "jszip"
-import html2pdf from "html2pdf.js"
 import type { ComplianceReport } from "./types"
+
+/**
+ * Dynamically imports html2pdf only in the browser
+ */
+async function loadHtml2Pdf() {
+  if (typeof window === "undefined") {
+    throw new Error("html2pdf can only be used in the browser")
+  }
+  const html2pdfModule = await import("html2pdf.js")
+  return html2pdfModule.default
+}
 
 /**
  * Generates a styled PDF report from the compliance data
@@ -11,7 +21,7 @@ import type { ComplianceReport } from "./types"
 export async function generatePdfReport(
   reportData: ComplianceReport
 ): Promise<Blob> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       // Find the report container in the DOM
       const element = document.querySelector("[data-report-container]")
@@ -48,6 +58,9 @@ export async function generatePdfReport(
         },
         pagebreak: { mode: ["css", "legacy"] },
       }
+
+      // Dynamically load html2pdf
+      const html2pdf = await loadHtml2Pdf()
 
       html2pdf()
         .set(options)
