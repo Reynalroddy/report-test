@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import type { ComplianceReport } from "@/lib/types"
-import { generateCompliancePdfReport, createOrganizedZip, downloadBlob } from "@/lib/compliance-download"
+import { exportComplianceReport } from "@/lib/export-service"
 
 interface DownloadComplianceDialogProps {
   isOpen: boolean
@@ -26,17 +26,18 @@ export function DownloadComplianceDialog({ isOpen, onClose, reportData }: Downlo
     setStatus("generating-pdf")
 
     try {
-      const pdfBlob = await generateCompliancePdfReport(reportData, false)
-      downloadBlob(pdfBlob, `${employeeName}_Compliance_Report.pdf`)
+      await exportComplianceReport(reportData, false)
       setStatus("complete")
-      setTimeout(() => onClose(), 1000)
+      setTimeout(() => {
+        onClose()
+        setStatus("idle")
+      }, 1500)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Failed to generate PDF"
       setError(errorMsg)
-      console.error("[v0] PDF generation error:", err)
+      console.error("[Export] PDF generation error:", err)
     } finally {
       setIsLoading(false)
-      setStatus("idle")
     }
   }
 
@@ -46,24 +47,22 @@ export function DownloadComplianceDialog({ isOpen, onClose, reportData }: Downlo
     setStatus("generating-pdf")
 
     try {
-      // Generate PDF report
-      const pdfBlob = await generateCompliancePdfReport(reportData, true)
-      downloadBlob(pdfBlob, `${employeeName}_Compliance_Report.pdf`)
-
-      // Create organized ZIP with all documents
-      setStatus("creating-zip")
-      const zipBlob = await createOrganizedZip(reportData, employeeName)
-      downloadBlob(zipBlob, `${employeeName}_Supporting_Documents.zip`)
-
+      // Set status to creating-zip when starting attachment fetch
+      setTimeout(() => setStatus("creating-zip"), 1000)
+      
+      await exportComplianceReport(reportData, true)
+      
       setStatus("complete")
-      setTimeout(() => onClose(), 1000)
+      setTimeout(() => {
+        onClose()
+        setStatus("idle")
+      }, 1500)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Failed to generate files"
       setError(errorMsg)
-      console.error("[v0] Download error:", err)
+      console.error("[Export] Download error:", err)
     } finally {
       setIsLoading(false)
-      setStatus("idle")
     }
   }
 

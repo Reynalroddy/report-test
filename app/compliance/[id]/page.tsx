@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { mockReportData } from "@/lib/mock-report-data";
 import { DownloadComplianceDialog } from "@/components/compliance/download-compliance-dialog";
+import { ComprehensiveReport } from "@/components/compliance-report/comprehensive-report";
 
 type VerificationStatus =
   | "fully_compliant"
@@ -308,6 +309,21 @@ export default function ComplianceResultPage({
             </div>
           </CardContent>
         </Card>
+
+        {/* Detailed Report Sections */}
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Compliance Report</CardTitle>
+              <CardDescription>
+                Complete report with all sections (ready for PDF export)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ComprehensiveReport reportData={report} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Download Dialog */}
