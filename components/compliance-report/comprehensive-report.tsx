@@ -29,6 +29,7 @@ export function ComprehensiveReport({ reportData }: ComprehensiveReportProps) {
             </div>
             <div>
               <p className="font-semibold text-gray-600">Report ID</p>
+              {/* Show first 13 characters of UUID for readability */}
               <p className="text-lg">{data.id.slice(0, 13)}</p>
             </div>
             <div>

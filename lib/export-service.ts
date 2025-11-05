@@ -21,68 +21,60 @@ async function loadHtml2Pdf() {
 export async function generatePdfReport(
   reportData: ComplianceReport
 ): Promise<Blob> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Find the report container in the DOM
-      const element = document.querySelector("[data-report-container]")
+  // Find the report container in the DOM
+  const element = document.querySelector("[data-report-container]")
 
-      if (!element) {
-        reject(
-          new Error(
-            "Report container not found. Ensure the report is rendered on the page."
-          )
-        )
-        return
-      }
+  if (!element) {
+    throw new Error(
+      "Report container not found. Ensure the report is rendered on the page."
+    )
+  }
 
-      const employeeName = reportData.data.profile.user_full_name
-        .replace(/\s+/g, "_")
-        .replace(/[^a-zA-Z0-9_]/g, "")
+  const employeeName = reportData.data.profile.user_full_name
+    .replace(/\s+/g, "_")
+    .replace(/[^a-zA-Z0-9_]/g, "")
 
-      const options = {
-        margin: [10, 10, 10, 10],
-        filename: `${employeeName}_Compliance_Report.pdf`,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-          compress: true,
-        },
-        pagebreak: { mode: ["css", "legacy"] },
-      }
+  const options = {
+    margin: [10, 10, 10, 10],
+    filename: `${employeeName}_Compliance_Report.pdf`,
+    image: { type: "jpeg", quality: 0.95 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    },
+    jsPDF: {
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+      compress: true,
+    },
+    pagebreak: { mode: ["css", "legacy"] },
+  }
 
-      // Dynamically load html2pdf
-      const html2pdf = await loadHtml2Pdf()
+  // Dynamically load html2pdf
+  const html2pdf = await loadHtml2Pdf()
 
-      html2pdf()
-        .set(options)
-        .from(element)
-        .toPdf()
-        .get("pdf")
-        .then((pdf: any) => {
-          const pageCount = pdf.internal.pages.length - 1
-          console.log(`[Export] Generated PDF with ${pageCount} pages`)
+  return new Promise((resolve, reject) => {
+    html2pdf()
+      .set(options)
+      .from(element)
+      .toPdf()
+      .get("pdf")
+      .then((pdf: any) => {
+        const pageCount = pdf.internal.pages.length - 1
+        console.log(`[Export] Generated PDF with ${pageCount} pages`)
 
-          // Convert to blob
-          const blob = pdf.output("blob")
-          resolve(blob)
-        })
-        .catch((error: any) => {
-          console.error("[Export] PDF generation failed:", error)
-          reject(new Error(`PDF generation failed: ${error.message}`))
-        })
-    } catch (error) {
-      console.error("[Export] PDF setup error:", error)
-      reject(error)
-    }
+        // Convert to blob
+        const blob = pdf.output("blob")
+        resolve(blob)
+      })
+      .catch((error: any) => {
+        console.error("[Export] PDF generation failed:", error)
+        reject(new Error(`PDF generation failed: ${error.message}`))
+      })
   })
 }
 
@@ -223,32 +215,32 @@ export async function createComplianceZip(
 
         if (refFolder) {
           // Add reference details as text file
-          const refDetails = `REFERENCE #${refNumber}
-========================
-Referee Name: ${ref.referee_name}
-Position: ${ref.referee_role}
-Company: ${ref.company_name}
-Email: ${ref.referee_email}
-Phone: ${ref.referee_phone_number}
-Type: ${ref.reference_type.replace("_", " ")}
-
-Date Received: ${ref.reference_entry.date_received}
-Reference Notes:
-${ref.reference_entry.notes}
-
-Verification Information:
-${ref.verification_logs
-  .map(
-    (log) => `
-Outcome: ${log.verification_outcome}
-Date Contacted: ${log.date_contacted}
-Verification Notes: ${log.verification_notes}
-Additional Notes: ${log.additional_notes || "N/A"}
-Verified By: ${log.verified_by}
-`
-  )
-  .join("\n---\n")}
-`
+          const refDetails = [
+            `REFERENCE #${refNumber}`,
+            "========================",
+            `Referee Name: ${ref.referee_name}`,
+            `Position: ${ref.referee_role}`,
+            `Company: ${ref.company_name}`,
+            `Email: ${ref.referee_email}`,
+            `Phone: ${ref.referee_phone_number}`,
+            `Type: ${ref.reference_type.replace("_", " ")}`,
+            "",
+            `Date Received: ${ref.reference_entry.date_received}`,
+            "Reference Notes:",
+            ref.reference_entry.notes,
+            "",
+            "Verification Information:",
+            ...ref.verification_logs.map((log) => 
+              [
+                `Outcome: ${log.verification_outcome}`,
+                `Date Contacted: ${log.date_contacted}`,
+                `Verification Notes: ${log.verification_notes}`,
+                `Additional Notes: ${log.additional_notes || "N/A"}`,
+                `Verified By: ${log.verified_by}`,
+                "---"
+              ].join("\n")
+            ),
+          ].join("\n")
           refFolder.file("reference_details.txt", refDetails)
 
           // Add reference attachments

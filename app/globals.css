@@ -138,9 +138,8 @@
   color: #000000 !important;
 }
 
-[data-report-container] *,
+/* Reset backgrounds to avoid color function issues */
 [data-report-container] [data-slot="badge"] {
-  /* Override all color functions with hex */
   background-color: transparent;
   background-image: none;
 }
